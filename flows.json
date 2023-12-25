@@ -1,0 +1,669 @@
+[
+    {
+        "id": "f22d669a8abb72eb",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "50555b5e47de5f94",
+        "type": "junction",
+        "z": "f22d669a8abb72eb",
+        "x": 680,
+        "y": 420,
+        "wires": [
+            [
+                "fdfe7b4a193413cc"
+            ]
+        ]
+    },
+    {
+        "id": "9f647f605a4d8648",
+        "type": "Stackhero-MySQL",
+        "z": "f22d669a8abb72eb",
+        "server": "9ae6653755c619a0",
+        "name": "",
+        "x": 470,
+        "y": 60,
+        "wires": [
+            [
+                "e24ca689d1cccb0d"
+            ]
+        ]
+    },
+    {
+        "id": "20618d024feb8d11",
+        "type": "inject",
+        "z": "f22d669a8abb72eb",
+        "name": "temperature_sensors",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "SELECT * FROM `temperature_sensors`",
+        "x": 160,
+        "y": 60,
+        "wires": [
+            [
+                "9f647f605a4d8648"
+            ]
+        ]
+    },
+    {
+        "id": "ae554fc373ea45d0",
+        "type": "debug",
+        "z": "f22d669a8abb72eb",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1120,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "cf25d50b4b7f02c8",
+        "type": "inject",
+        "z": "f22d669a8abb72eb",
+        "name": "thermostat",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "0.2",
+        "topic": "SELECT * FROM `thermostat`",
+        "x": 130,
+        "y": 100,
+        "wires": [
+            [
+                "9f647f605a4d8648"
+            ]
+        ]
+    },
+    {
+        "id": "e24ca689d1cccb0d",
+        "type": "switch",
+        "z": "f22d669a8abb72eb",
+        "name": "Switch Topic",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "SELECT * FROM `temperature_sensors`",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "SELECT * FROM `thermostat`",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "SELECT * FROM `settings`",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 3,
+        "x": 690,
+        "y": 60,
+        "wires": [
+            [
+                "bb170bf31fd3d198"
+            ],
+            [
+                "c52d0ce4416ac654"
+            ],
+            [
+                "17e54b48ad1264bb"
+            ]
+        ]
+    },
+    {
+        "id": "bb170bf31fd3d198",
+        "type": "function",
+        "z": "f22d669a8abb72eb",
+        "name": "forEach temperature_sensors",
+        "func": "let myArray = msg.payload;\nmyArray.forEach(function(elem) {\n    global.set(`temperature_sensors.${elem.slug}`, {\n        \"slug\" : elem.slug,\n        \"name\": elem.name,\n        \"isAverage\": parseInt(elem.isAverage),\n        \"connection\": elem.connection,\n        \"address\":  elem.address\n    });\n});\n\nmsg.payload = global.get('temperature_sensors');\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1030,
+        "y": 40,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c52d0ce4416ac654",
+        "type": "function",
+        "z": "f22d669a8abb72eb",
+        "name": "forEach thermostat",
+        "func": "let myArray = msg.payload;\nmyArray.forEach(function(elem) {\n    global.set(`thermostat.${elem.name}`, parseFloat(elem.value));\n});\n\nmsg.payload = global.get('thermostat');\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 990,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b79ee0f0c3fa1c57",
+        "type": "http in",
+        "z": "f22d669a8abb72eb",
+        "name": "Vezérlőpult",
+        "url": "/",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 100,
+        "y": 280,
+        "wires": [
+            [
+                "a6c44c30c887bf0c"
+            ]
+        ]
+    },
+    {
+        "id": "ad6b544b8d1945d8",
+        "type": "http response",
+        "z": "f22d669a8abb72eb",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 1090,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "89d6e4a8c12c1026",
+        "type": "template",
+        "z": "f22d669a8abb72eb",
+        "name": "HTML",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "html",
+        "syntax": "mustache",
+        "template": "<!DOCTYPE html>\n<html lang=\"hu\" data-bs-theme=\"{{{theme}}}\">\n\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <link rel=\"stylesheet\" href=\"/assets/node_modules/bootstrap/dist/css/bootstrap.min.css\">\n    <link rel=\"stylesheet\" href=\"/assets/css/main.css\">\n    <title>Makai SmartHome</title>\n    <style>{{{css}}}</style>\n</head>\n\n<svg xmlns=\"http://www.w3.org/2000/svg\" style=\"display: none;\">\n  <symbol id=\"home\" viewBox=\"0 0 16 16\">\n    <path\n      fill=\"currentColor\" d=\"M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4H2.5z\">\n    </path>\n  </symbol>\n  <symbol id=\"speedometer2\" viewBox=\"0 0 16 16\">\n    <path\n      fill=\"currentColor\" d=\"M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4zM3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707zM2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10zm9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5zm.754-4.246a.389.389 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.389.389 0 0 0-.029-.518z\">\n    </path>\n    <path fill-rule=\"evenodd\"\n      fill=\"currentColor\" d=\"M0 10a8 8 0 1 1 15.547 2.661c-.442 1.253-1.845 1.602-2.932 1.25C11.309 13.488 9.475 13 8 13c-1.474 0-3.31.488-4.615.911-1.087.352-2.49.003-2.932-1.25A7.988 7.988 0 0 1 0 10zm8-7a7 7 0 0 0-6.603 9.329c.203.575.923.876 1.68.63C4.397 12.533 6.358 12 8 12s3.604.532 4.923.96c.757.245 1.477-.056 1.68-.631A7 7 0 0 0 8 3z\">\n    </path>\n  </symbol>\n  <symbol id=\"collection\" viewBox=\"0 0 16 16\">\n    <path\n      fill=\"currentColor\" d=\"M2.5 3.5a.5.5 0 0 1 0-1h11a.5.5 0 0 1 0 1h-11zm2-2a.5.5 0 0 1 0-1h7a.5.5 0 0 1 0 1h-7zM0 13a1.5 1.5 0 0 0 1.5 1.5h13A1.5 1.5 0 0 0 16 13V6a1.5 1.5 0 0 0-1.5-1.5h-13A1.5 1.5 0 0 0 0 6v7zm1.5.5A.5.5 0 0 1 1 13V6a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-.5.5h-13z\">\n    </path>\n  </symbol>\n  <symbol id=\"cpu-fill\" viewBox=\"0 0 16 16\">\n    <path fill=\"currentColor\" d=\"M6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z\"></path>\n    <path\n      fill=\"currentColor\" d=\"M5.5.5a.5.5 0 0 0-1 0V2A2.5 2.5 0 0 0 2 4.5H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2A2.5 2.5 0 0 0 4.5 14v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14a2.5 2.5 0 0 0 2.5-2.5h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14A2.5 2.5 0 0 0 11.5 2V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1V.5zm1 4.5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3A1.5 1.5 0 0 1 6.5 5z\">\n    </path>\n  </symbol>\n  <symbol id=\"gear-fill\" viewBox=\"0 0 16 16\">\n    <path\n      fill=\"currentColor\" d=\"M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z\">\n    </path>\n  </symbol>\n  <symbol id=\"toggles2\" viewBox=\"0 0 16 16\">\n    <path fill=\"currentColor\" d=\"M9.465 10H12a2 2 0 1 1 0 4H9.465c.34-.588.535-1.271.535-2 0-.729-.195-1.412-.535-2z\"></path>\n    <path\n      fill=\"currentColor\" d=\"M6 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 1a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm.535-10a3.975 3.975 0 0 1-.409-1H4a1 1 0 0 1 0-2h2.126c.091-.355.23-.69.41-1H4a2 2 0 1 0 0 4h2.535z\">\n    </path>\n    <path fill=\"currentColor\" d=\"M14 4a4 4 0 1 1-8 0 4 4 0 0 1 8 0z\"></path>\n  </symbol>\n  <symbol id=\"tools\" viewBox=\"0 0 16 16\">\n    <path\n      fill=\"currentColor\" d=\"M1 0L0 1l2.2 3.081a1 1 0 0 0 .815.419h.07a1 1 0 0 1 .708.293l2.675 2.675-2.617 2.654A3.003 3.003 0 0 0 0 13a3 3 0 1 0 5.878-.851l2.654-2.617.968.968-.305.914a1 1 0 0 0 .242 1.023l3.356 3.356a1 1 0 0 0 1.414 0l1.586-1.586a1 1 0 0 0 0-1.414l-3.356-3.356a1 1 0 0 0-1.023-.242L10.5 9.5l-.96-.96 2.68-2.643A3.005 3.005 0 0 0 16 3c0-.269-.035-.53-.102-.777l-2.14 2.141L12 4l-.364-1.757L13.777.102a3 3 0 0 0-3.675 3.68L7.462 6.46 4.793 3.793a1 1 0 0 1-.293-.707v-.071a1 1 0 0 0-.419-.814L1 0zm9.646 10.646a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708zM3 11l.471.242.529.026.287.445.445.287.026.529L5 13l-.242.471-.026.529-.445.287-.287.445-.529.026L3 15l-.471-.242L2 14.732l-.287-.445L1.268 14l-.026-.529L1 13l.242-.471.026-.529.445-.287.287-.445.529-.026L3 11z\">\n    </path>\n  </symbol>\n  <symbol id=\"connection\" viewBox=\"0 0 640 512\">\n    <path\n      fill=\"currentColor\" d=\"M579.8 267.7c56.5-56.5 56.5-148 0-204.5c-50-50-128.8-56.5-186.3-15.4l-1.6 1.1c-14.4 10.3-17.7 30.3-7.4 44.6s30.3 17.7 44.6 7.4l1.6-1.1c32.1-22.9 76-19.3 103.8 8.6c31.5 31.5 31.5 82.5 0 114L422.3 334.8c-31.5 31.5-82.5 31.5-114 0c-27.9-27.9-31.5-71.8-8.6-103.8l1.1-1.6c10.3-14.4 6.9-34.4-7.4-44.6s-34.4-6.9-44.6 7.4l-1.1 1.6C206.5 251.2 213 330 263 380c56.5 56.5 148 56.5 204.5 0L579.8 267.7zM60.2 244.3c-56.5 56.5-56.5 148 0 204.5c50 50 128.8 56.5 186.3 15.4l1.6-1.1c14.4-10.3 17.7-30.3 7.4-44.6s-30.3-17.7-44.6-7.4l-1.6 1.1c-32.1 22.9-76 19.3-103.8-8.6C74 372 74 321 105.5 289.5L217.7 177.2c31.5-31.5 82.5-31.5 114 0c27.9 27.9 31.5 71.8 8.6 103.9l-1.1 1.6c-10.3 14.4-6.9 34.4 7.4 44.6s34.4 6.9 44.6-7.4l1.1-1.6C433.5 260.8 427 182 377 132c-56.5-56.5-148-56.5-204.5 0L60.2 244.3z\">\n    </path>\n  </symbol>\n  <symbol id=\"eco\" viewBox=\"0 0 512 512\">\n    <path\n      fill=\"currentColor\" d=\"M272 96c-78.6 0-145.1 51.5-167.7 122.5c33.6-17 71.5-26.5 111.7-26.5h88c8.8 0 16 7.2 16 16s-7.2 16-16 16H288 216s0 0 0 0c-16.6 0-32.7 1.9-48.2 5.4c-25.9 5.9-50 16.4-71.4 30.7c0 0 0 0 0 0C38.3 298.8 0 364.9 0 440v16c0 13.3 10.7 24 24 24s24-10.7 24-24V440c0-48.7 20.7-92.5 53.8-123.2C121.6 392.3 190.3 448 272 448l1 0c132.1-.7 239-130.9 239-291.4c0-42.6-7.5-83.1-21.1-119.6c-2.6-6.9-12.7-6.6-16.2-.1C455.9 72.1 418.7 96 376 96L272 96z\">\n    </path>\n  </symbol>\n  <symbol id=\"fire\" viewBox=\"0 0 384 512\">\n    <path\n      fill=\"currentColor\" d=\"M112.5 301.4c0-73.8 105.1-122.5 105.1-203 0-47.1-34-88-39.1-90.4.4 3.3.6 6.7.6 10C179.1 110.1 32 171.9 32 286.6c0 49.8 32.2 79.2 66.5 108.3 65.1 46.7 78.1 71.4 78.1 86.6 0 10.1-4.8 17-4.8 22.3 13.1-16.7 17.4-31.9 17.5-46.4 0-29.6-21.7-56.3-44.2-86.5-16-22.3-32.6-42.6-32.6-69.5zm205.3-39c-12.1-66.8-78-124.4-94.7-130.9l4 7.2c2.4 5.1 3.4 10.9 3.4 17.1 0 44.7-54.2 111.2-56.6 116.7-2.2 5.1-3.2 10.5-3.2 15.8 0 20.1 15.2 42.1 17.9 42.1 2.4 0 56.6-55.4 58.1-87.7 6.4 11.7 9.1 22.6 9.1 33.4 0 41.2-41.8 96.9-41.8 96.9 0 11.6 31.9 53.2 35.5 53.2 1 0 2.2-1.4 3.2-2.4 37.9-39.3 67.3-85 67.3-136.8 0-8-.7-16.2-2.2-24.6z\">\n    </path>\n  </symbol>\n</svg>\n\n<body>\n\n  <header id=\"homeserver-header\" class=\"d-lg-none\">\n    <nav class=\"navbar navbar-dark bg-dark-subtle\">\n      <div class=\"container-fluid\">\n        <a class=\"navbar-brand\" href=\"http://homeserver.local\">\n          <img width=\"18\" class=\"d-inline-block me-1\" src=\"/assets/images/logo.png\" alt=\"Logo\">\n          Makai SmartHome\n        </a>\n        <button class=\"navbar-toggler p-2 fs-6\" type=\"button\">\n          <span class=\"navbar-toggler-icon\"></span>\n        </button>\n      </div>\n    </nav>\n  </header>\n\n  {{{navigation}}}\n\n  {{{body}}}\n\n<script src=\"/assets/node_modules/jquery/dist/jquery.min.js\"></script>\n<script src=\"/assets/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js\"></script>\n<script src=\"/assets/js/app.js\"></script>\n</body>\n</html>",
+        "output": "str",
+        "x": 930,
+        "y": 420,
+        "wires": [
+            [
+                "ad6b544b8d1945d8"
+            ]
+        ]
+    },
+    {
+        "id": "0e1873cccdc526bd",
+        "type": "template",
+        "z": "f22d669a8abb72eb",
+        "name": "BODY",
+        "field": "body",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "<body>\n    <h1>HELLO</h1>\n</body>",
+        "output": "str",
+        "x": 450,
+        "y": 280,
+        "wires": [
+            [
+                "50555b5e47de5f94"
+            ]
+        ]
+    },
+    {
+        "id": "a6c44c30c887bf0c",
+        "type": "function",
+        "z": "f22d669a8abb72eb",
+        "name": "settings",
+        "func": "msg = {\n    ...msg,\n    theme: global.get('settings.ui_theme'),\n    pagenow: 'Vezérlőpult',\n    nav: {\"vezerlopult\" : \"active\"}\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 300,
+        "y": 280,
+        "wires": [
+            [
+                "0e1873cccdc526bd"
+            ]
+        ]
+    },
+    {
+        "id": "e63bf33626484572",
+        "type": "inject",
+        "z": "f22d669a8abb72eb",
+        "name": "settings",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "0.3",
+        "topic": "SELECT * FROM `settings`",
+        "x": 120,
+        "y": 140,
+        "wires": [
+            [
+                "9f647f605a4d8648"
+            ]
+        ]
+    },
+    {
+        "id": "17e54b48ad1264bb",
+        "type": "function",
+        "z": "f22d669a8abb72eb",
+        "name": "forEach settings",
+        "func": "let myArray = msg.payload;\nmyArray.forEach(function(elem) {\n    global.set(`settings.${elem.name}`, elem.value);\n});\n\nmsg.payload = global.get('settings');\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 980,
+        "y": 120,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "fdfe7b4a193413cc",
+        "type": "template",
+        "z": "f22d669a8abb72eb",
+        "name": "NAV",
+        "field": "navigation",
+        "fieldType": "msg",
+        "format": "html",
+        "syntax": "mustache",
+        "template": "<aside id=\"sidebar\" class=\"bg-dark-subtle shadow p-3\">\n    <h1 class=\"fs-5 text-white d-flex align-items-center gap-2\" href=\"/\">\n    <img width=\"18\" class=\"d-inline-block me-1\" src=\"../assets/images/logo.png\" alt=\"Logo\">\n    {{{pagenow}}}\n    </h1>\n    <hr>\n\n    <ul class=\"nav nav-pills flex-column mb-auto\">\n    <li class=\"nav-item\">\n        <a href=\"/\" class=\"nav-link text-white {{{nav.vezerlopult}}}\">\n        <svg class=\"bi pe-none me-2\" width=\"18\" height=\"16\">\n            <use xlink:href=\"#home\"></use>\n        </svg>\n        Vezérlőpult\n        </a>\n    </li>\n    <li>\n        <a href=\"/termosztat\" class=\"nav-link text-white {{{nav.termosztat}}}\">\n        <svg class=\"bi pe-none me-2\" width=\"18\" height=\"16\">\n            <use xlink:href=\"#speedometer2\"></use>\n        </svg>\n        Termosztát\n        </a>\n    </li>\n    <li>\n        <a href=\"/szobak\" class=\"nav-link text-white {{{nav.szobak}}}\">\n        <svg class=\"bi pe-none me-2\" width=\"18\" height=\"16\">\n            <use xlink:href=\"#collection\"></use>\n        </svg>\n        Szobák\n        </a>\n    </li>\n    <li>\n        <a href=\"/vezerlok\" class=\"nav-link text-white {{{nav.vezerlok}}}\">\n        <svg class=\"bi pe-none me-2\" width=\"18\" height=\"16\">\n            <use xlink:href=\"#tools\"></use>\n        </svg>\n        Vezérlők\n        </a>\n    </li>\n    <li>\n        <a href=\"/kapcsolok\" class=\"nav-link text-white {{{nav.kapcsolok}}}\">\n        <svg class=\"bi pe-none me-2\" width=\"18\" height=\"16\">\n            <use xlink:href=\"#toggles2\"></use>\n        </svg>\n        Kapcsolók\n        </a>\n    </li>\n    <hr>\n    <li>\n        <a href=\"/szerver\" class=\"nav-link text-white {{{nav.szerver}}}\">\n        <svg class=\"bi pe-none me-2\" width=\"18\" height=\"16\">\n            <use xlink:href=\"#cpu-fill\"></use>\n        </svg>\n        Szerver\n        </a>\n    </li>\n    <li>\n        <a href=\"/beallitasok\" class=\"nav-link text-white {{{nav.beallitasok}}}\">\n        <svg class=\"bi pe-none me-2\" width=\"18\" height=\"16\">\n            <use xlink:href=\"#gear-fill\"></use>\n        </svg>\n        Beállítások\n        </a>\n    </li>\n    </ul>\n</aside>",
+        "output": "str",
+        "x": 790,
+        "y": 420,
+        "wires": [
+            [
+                "89d6e4a8c12c1026"
+            ]
+        ]
+    },
+    {
+        "id": "f9de5819337be319",
+        "type": "http in",
+        "z": "f22d669a8abb72eb",
+        "name": "Termosztát",
+        "url": "/termosztat",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 100,
+        "y": 320,
+        "wires": [
+            [
+                "ad7990c38d56da95"
+            ]
+        ]
+    },
+    {
+        "id": "40b97a2b1cdd72a4",
+        "type": "template",
+        "z": "f22d669a8abb72eb",
+        "name": "BODY",
+        "field": "body",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "<section class=\"flex-grow-1 p-3\">\n\n      <main id=\"homeserver-thermostat-container\" class=\"w-100 d-flex flex-column align-items-center gap-3\">\n        <!-- <h1 class=\"h4 text-center fw-bolder\">Termosztát</h1> -->\n        <div style=\"border-radius:12px; background-color:rgba(255,255,255,.05)\"\n          class=\"shadow w-100 h-100 p-3 d-flex flex-column align-items-center gap-3 pb-6\">\n\n          <h2 class=\"text-center fw-light fs-3 m-0\">Átlag hőmérséklet</h2>\n          <h3 style=\"font-size:40px\" class=\"text-center fw-light m-0\">23.5</h2>\n\n            <div id=\"homeserverThermostat\">\n              <div class=\"homeserver-thermostat-wrapper \">\n                <div class='homeserver-thermostat-icons'>\n                  <div class='homeserver-thermostat-server'>\n                    <p><svg class=\"bi pe-none\" width=\"25\" height=\"20\">\n                        <use xlink:href=\"#connection\"></use>\n                      </svg>link</p>\n                  </div>\n                  <button class='homeserver-thermostat-eco {{#global.thermostat.eco}}on{{/global.thermostat.eco}}{{^global.thermostat.eco}} {{/global.thermostat.eco}}'>\n                    <p><svg class=\"bi pe-none\" width=\"20\" height=\"20\">\n                        <use xlink:href=\"#eco\"></use>\n                      </svg>eco</p>\n                  </button>\n                  <div class='homeserver-thermostat-fire'>\n                    <p><svg class=\"bi pe-none\" width=\"19\" height=\"24\">\n                        <use xlink:href=\"#fire\"></use>\n                      </svg>fűtés</p>\n                  </div>\n                </div>\n                <div class='homeserver-thermostat-display'>\n                  <div class='display-background'>\n                    <div class='display-foreground'>\n                      <div class='display-number'>\n                        <span class='temperature'>{{global.thermostat.temperature}}</span>\n                        <span class='grad'>°</span>\n                      </div>\n                    </div>\n                  </div>\n                </div>\n                <div class='homeserver-thermostat-buttons'>\n                  <button class='homeserver-thermostat-button minus'>\n                    <svg height=\"30px\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 512\">\n                      <path fill=\"currentColor\"\n                        d=\"M9.4 278.6c-12.5-12.5-12.5-32.8 0-45.3l128-128c9.2-9.2 22.9-11.9 34.9-6.9s19.8 16.6 19.8 29.6l0 256c0 12.9-7.8 24.6-19.8 29.6s-25.7 2.2-34.9-6.9l-128-128z\" />\n                    </svg>\n                  </button>\n                  <button class='homeserver-thermostat-button plus'>\n                    <svg height=\"30px\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 512\">\n                      <path fill=\"currentColor\"\n                        d=\"M246.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-128-128c-9.2-9.2-22.9-11.9-34.9-6.9s-19.8 16.6-19.8 29.6l0 256c0 12.9 7.8 24.6 19.8 29.6s25.7 2.2 34.9-6.9l128-128z\" />\n                    </svg>\n                  </button>\n                </div>\n              </div>\n            </div>\n        </div>\n\n        <div id=\"homeserverThermostatRooms\" class=\"p-2\">\n          <div class=\"room-container w-100 h-100\">\n            <table class=\"table w-100\">\n              <thead>\n                <tr>\n                  <th class=\"fw-normal fs-7\">Helység</th>\n                  <th class=\"text-center fw-normal fs-7\">°C</th>\n                  <th style=\"width:6ch\" class=\"text-center fw-normal fs-7\">Átlag</th>\n                </tr>\n              </thead>\n              <tbody>\n                <tr>\n                  <td class=\"fw-bolder\">Hálószoba</td>\n                  <td class=\"text-center\">24.5</td>\n                  <td style=\"width:6ch\" class=\"text-center\">\n                    <div class=\"form-check form-switch\">\n                      <input style=\"float: none!important;\" class=\"form-check-input\" type=\"checkbox\" role=\"switch\"\n                        name=\"livingroom_avarage_check\" id=\"livingroom_avarage_check\">\n                    </div>\n                  </td>\n                </tr>\n                <tr>\n                  <td class=\"fw-bolder\">Hálószoba</td>\n                  <td class=\"text-center\">24.5</td>\n                  <td style=\"width:6ch\" class=\"text-center\"><input class=\"room-avarage-checkbox\" type=\"checkbox\"\n                      name=\"livingroom\" id=\"livingroom\"></td>\n                </tr>\n              </tbody>\n            </table>\n          </div>\n        </div>\n\n\n      </main>\n\n    </section>",
+        "output": "str",
+        "x": 450,
+        "y": 320,
+        "wires": [
+            [
+                "50555b5e47de5f94"
+            ]
+        ]
+    },
+    {
+        "id": "ad7990c38d56da95",
+        "type": "function",
+        "z": "f22d669a8abb72eb",
+        "name": "settings",
+        "func": "msg = {\n    ...msg,\n    theme: global.get('settings.ui_theme'),\n    pagenow: 'Termosztát',\n    nav: {\"termosztat\" : \"active\"},\n    css: `#homeserver-thermostat-container #homeserverThermostatRooms{max-width:600px;border-radius:12px;width:100%;background:linear-gradient(315deg, rgb(68, 68, 68) 0%, rgb(140, 140, 140) 100%);box-shadow:3px 3px 8px rgba(0,0,0,.35)}#homeserver-thermostat-container #homeserverThermostatRooms .room-container{border-radius:10px;background:linear-gradient(135deg, rgb(68, 68, 68) 0%, rgb(23, 23, 23) 100%)}#homeserver-thermostat-container #homeserverThermostatRooms .room-avarage-checkbox{height:16px;width:16px}#homeserver-thermostat-container #homeserverThermostatRooms table{border-collapse:separate;border-spacing:.5rem}#homeserverThermostat{background:linear-gradient(315deg, rgb(68, 68, 68) 0%, rgb(140, 140, 140) 100%);display:inline-block;border-radius:25%;margin:0;padding:0;box-sizing:border-box;width:280px;height:280px;padding:10px;box-shadow:3px 3px 8px rgba(0,0,0,.35)}#homeserverThermostat>*{box-sizing:border-box}#homeserverThermostat .homeserver-thermostat-wrapper{background:linear-gradient(135deg, rgb(68, 68, 68) 0%, rgb(23, 23, 23) 100%);height:100%;width:100%;border-radius:25%;display:flex;flex-direction:column;padding:16px}#homeserverThermostat .homeserver-thermostat-wrapper .homeserver-thermostat-display{flex:1;display:flex;justify-content:center;align-items:center}#homeserverThermostat .homeserver-thermostat-wrapper .homeserver-thermostat-display .display-background{width:100px;height:100px;border-radius:50%;padding:6px;background:linear-gradient(236deg, rgb(255, 0, 0) 0%, rgb(255, 255, 0) 33%, rgb(0, 167, 80) 66%, rgb(0, 69, 167) 100%)}#homeserverThermostat .homeserver-thermostat-wrapper .homeserver-thermostat-display .display-foreground{height:100%;width:100%;border-radius:50%;display:flex;justify-content:center;align-items:center;background:linear-gradient(135deg, rgb(68, 68, 68) 0%, rgb(23, 23, 23) 100%)}#homeserverThermostat .homeserver-thermostat-wrapper .homeserver-thermostat-display .display-number{display:flex;flex-wrap:nowrap;align-items:flex-start;color:#fff;transform:translate(2px, -3px)}#homeserverThermostat .homeserver-thermostat-wrapper .homeserver-thermostat-display .display-number .temperature{font-size:36px;line-height:1}#homeserverThermostat .homeserver-thermostat-wrapper .homeserver-thermostat-display .display-number .grad{font-size:16px;line-height:1}#homeserverThermostat .homeserver-thermostat-wrapper .homeserver-thermostat-icons{padding:0 16px;display:flex;flex-wrap:nowrap;justify-content:space-between;align-items:center}#homeserverThermostat .homeserver-thermostat-wrapper .homeserver-thermostat-icons *{color:gray;height:max-content}#homeserverThermostat .homeserver-thermostat-wrapper .homeserver-thermostat-icons .homeserver-thermostat-fire.on p,#homeserverThermostat .homeserver-thermostat-wrapper .homeserver-thermostat-icons .homeserver-thermostat-fire.on p svg path{color:orange}#homeserverThermostat .homeserver-thermostat-wrapper .homeserver-thermostat-icons .homeserver-thermostat-eco.on p,#homeserverThermostat .homeserver-thermostat-wrapper .homeserver-thermostat-icons .homeserver-thermostat-eco.on p svg path{color:#7cfc00}#homeserverThermostat .homeserver-thermostat-wrapper .homeserver-thermostat-icons .homeserver-thermostat-fire p,#homeserverThermostat .homeserver-thermostat-wrapper .homeserver-thermostat-icons .homeserver-thermostat-eco p,#homeserverThermostat .homeserver-thermostat-wrapper .homeserver-thermostat-icons .homeserver-thermostat-server p{text-transform:uppercase;font-size:10px;font-weight:700;margin:0;padding:0;gap:4px;display:flex;flex-direction:column;align-items:center}#homeserverThermostat .homeserver-thermostat-wrapper .homeserver-thermostat-icons .homeserver-thermostat-eco{border:none;background-color:rgba(0,0,0,0)}#homeserverThermostat .homeserver-thermostat-wrapper .homeserver-thermostat-icons .homeserver-thermostat-server{display:flex;justify-content:center;align-items:center}#homeserverThermostat .homeserver-thermostat-wrapper .homeserver-thermostat-icons .homeserver-thermostat-server.on svg path{color:#7cfc00}#homeserverThermostat .homeserver-thermostat-wrapper .homeserver-thermostat-buttons{width:100%;display:flex;flex-wrap:nowrap;justify-content:space-evenly}#homeserverThermostat .homeserver-thermostat-wrapper .homeserver-thermostat-buttons button.homeserver-thermostat-button,#homeserverThermostat .homeserver-thermostat-wrapper .homeserver-thermostat-buttons a.homeserver-thermostat-button{background-color:rgba(255,255,255,.2);border:none;width:40px;height:40px;display:flex;justify-content:center;align-items:center;border-radius:50%;color:#fff;transition:all 300ms ease}#homeserverThermostat .homeserver-thermostat-wrapper .homeserver-thermostat-buttons button.homeserver-thermostat-button svg,#homeserverThermostat .homeserver-thermostat-wrapper .homeserver-thermostat-buttons a.homeserver-thermostat-button svg{height:30px;width:auto}#homeserverThermostat .homeserver-thermostat-wrapper .homeserver-thermostat-buttons button.homeserver-thermostat-button:not(.power):hover,#homeserverThermostat .homeserver-thermostat-wrapper .homeserver-thermostat-buttons a.homeserver-thermostat-button:not(.power):hover{background-color:rgba(255,255,255,.4)}#homeserverThermostat .homeserver-thermostat-wrapper .homeserver-thermostat-buttons button.homeserver-thermostat-button.power,#homeserverThermostat .homeserver-thermostat-wrapper .homeserver-thermostat-buttons a.homeserver-thermostat-button.power{color:gray;background-color:rgba(0,0,0,0)}#homeserverThermostat .homeserver-thermostat-wrapper .homeserver-thermostat-buttons button.homeserver-thermostat-button.power.on,#homeserverThermostat .homeserver-thermostat-wrapper .homeserver-thermostat-buttons a.homeserver-thermostat-button.power.on{color:#7cfc00} svg,svg use{color:inherit!important}`\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 300,
+        "y": 320,
+        "wires": [
+            [
+                "40b97a2b1cdd72a4"
+            ]
+        ]
+    },
+    {
+        "id": "4338214db8ba36d2",
+        "type": "http in",
+        "z": "f22d669a8abb72eb",
+        "name": "Szobák",
+        "url": "/szobak",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 90,
+        "y": 360,
+        "wires": [
+            [
+                "f9fbaa65a598ad82"
+            ]
+        ]
+    },
+    {
+        "id": "0dac74c16e4a495e",
+        "type": "template",
+        "z": "f22d669a8abb72eb",
+        "name": "BODY",
+        "field": "body",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "<body>\n    <h1>HELLO</h1>\n</body>",
+        "output": "str",
+        "x": 450,
+        "y": 360,
+        "wires": [
+            [
+                "50555b5e47de5f94"
+            ]
+        ]
+    },
+    {
+        "id": "f9fbaa65a598ad82",
+        "type": "function",
+        "z": "f22d669a8abb72eb",
+        "name": "settings",
+        "func": "msg = {\n    ...msg,\n    theme: global.get('settings.ui_theme'),\n    pagenow: 'Szobák',\n    nav: {\"szobak\" : \"active\"}\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 300,
+        "y": 360,
+        "wires": [
+            [
+                "0dac74c16e4a495e"
+            ]
+        ]
+    },
+    {
+        "id": "aa345f0d1c59cc99",
+        "type": "http in",
+        "z": "f22d669a8abb72eb",
+        "name": "Vezérlők",
+        "url": "/vezerlok",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 100,
+        "y": 400,
+        "wires": [
+            [
+                "53054706123c5166"
+            ]
+        ]
+    },
+    {
+        "id": "94f250e1b497653b",
+        "type": "template",
+        "z": "f22d669a8abb72eb",
+        "name": "BODY",
+        "field": "body",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "<body>\n    <h1>HELLO</h1>\n</body>",
+        "output": "str",
+        "x": 450,
+        "y": 400,
+        "wires": [
+            [
+                "50555b5e47de5f94"
+            ]
+        ]
+    },
+    {
+        "id": "53054706123c5166",
+        "type": "function",
+        "z": "f22d669a8abb72eb",
+        "name": "settings",
+        "func": "msg = {\n    ...msg,\n    theme: global.get('settings.ui_theme'),\n    pagenow: 'Vezérlők',\n    nav: {\"vezerlok\" : \"active\"}\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 300,
+        "y": 400,
+        "wires": [
+            [
+                "94f250e1b497653b"
+            ]
+        ]
+    },
+    {
+        "id": "451b5e4415c9f867",
+        "type": "http in",
+        "z": "f22d669a8abb72eb",
+        "name": "Kapcsolók",
+        "url": "/kapcsolok",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 100,
+        "y": 440,
+        "wires": [
+            [
+                "3eb8f45a3fbbcec6"
+            ]
+        ]
+    },
+    {
+        "id": "320924acbe41e968",
+        "type": "template",
+        "z": "f22d669a8abb72eb",
+        "name": "BODY",
+        "field": "body",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "<body>\n    <h1>HELLO</h1>\n</body>",
+        "output": "str",
+        "x": 450,
+        "y": 440,
+        "wires": [
+            [
+                "50555b5e47de5f94"
+            ]
+        ]
+    },
+    {
+        "id": "3eb8f45a3fbbcec6",
+        "type": "function",
+        "z": "f22d669a8abb72eb",
+        "name": "settings",
+        "func": "msg = {\n    ...msg,\n    theme: global.get('settings.ui_theme'),\n    pagenow: 'Kapcsolók',\n    nav: {\"kapcsolok\" : \"active\"}\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 300,
+        "y": 440,
+        "wires": [
+            [
+                "320924acbe41e968"
+            ]
+        ]
+    },
+    {
+        "id": "96cc081d1b4e668b",
+        "type": "http in",
+        "z": "f22d669a8abb72eb",
+        "name": "Szerver",
+        "url": "/szerver",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 90,
+        "y": 480,
+        "wires": [
+            [
+                "016e7ac175c457a5"
+            ]
+        ]
+    },
+    {
+        "id": "0450e4edecd0265f",
+        "type": "template",
+        "z": "f22d669a8abb72eb",
+        "name": "BODY",
+        "field": "body",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "<body>\n    <h1>HELLO</h1>\n</body>",
+        "output": "str",
+        "x": 450,
+        "y": 480,
+        "wires": [
+            [
+                "50555b5e47de5f94"
+            ]
+        ]
+    },
+    {
+        "id": "016e7ac175c457a5",
+        "type": "function",
+        "z": "f22d669a8abb72eb",
+        "name": "settings",
+        "func": "msg = {\n    ...msg,\n    theme: global.get('settings.ui_theme'),\n    pagenow: 'Szerver',\n    nav: {\"szerver\" : \"active\"}\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 300,
+        "y": 480,
+        "wires": [
+            [
+                "0450e4edecd0265f"
+            ]
+        ]
+    },
+    {
+        "id": "418c1c01ed983b60",
+        "type": "http in",
+        "z": "f22d669a8abb72eb",
+        "name": "Beállítások",
+        "url": "/beallitasok",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 100,
+        "y": 520,
+        "wires": [
+            [
+                "59dc953d15e38f77"
+            ]
+        ]
+    },
+    {
+        "id": "1334d662ba8dc674",
+        "type": "template",
+        "z": "f22d669a8abb72eb",
+        "name": "BODY",
+        "field": "body",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "<body>\n    <h1>HELLO</h1>\n</body>",
+        "output": "str",
+        "x": 450,
+        "y": 520,
+        "wires": [
+            [
+                "50555b5e47de5f94"
+            ]
+        ]
+    },
+    {
+        "id": "59dc953d15e38f77",
+        "type": "function",
+        "z": "f22d669a8abb72eb",
+        "name": "settings",
+        "func": "msg = {\n    ...msg,\n    theme: global.get('settings.ui_theme'),\n    pagenow: 'Beállítások',\n    nav: {\"beallitasok\" : \"active\"}\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 300,
+        "y": 520,
+        "wires": [
+            [
+                "1334d662ba8dc674"
+            ]
+        ]
+    },
+    {
+        "id": "9ae6653755c619a0",
+        "type": "Stackhero-MySQL-Server",
+        "name": "",
+        "host": "localhost",
+        "port": "3306",
+        "tls": false,
+        "database": "homeserver"
+    }
+]
