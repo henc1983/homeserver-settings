@@ -26,7 +26,7 @@ echo "*************************************
 *************************************
 
 "
-PACKAGES="mosquitto mosquitto-clients mariadb-server"
+PACKAGES="mosquitto mosquitto-clients mariadb-server qbittorrent qbittorrent-nox samba samba-common-bin"
 apt-get install $PACKAGES -y
 clear
 
@@ -42,9 +42,7 @@ cd static
 npm init -y
 npm install bootstrap jquery
 cd /home/homeserver/.node-red
-npm install @node-red-contrib-themes/theme-collection
-npm install node-red-contrib-stackhero-mysql
-npm install node-red-contrib-homekit-bridged
+npm install @node-red-contrib-themes/theme-collection node-red-contrib-stackhero-mysql node-red-contrib-homekit-bridged node-red-dashboard
 cd /home/homeserver/homeserver-settings
 cp settings.js /home/homeserver/.node-red
 cp -R assets/* /home/homeserver/static

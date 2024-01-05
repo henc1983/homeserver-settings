@@ -8,13 +8,13 @@ use homeserver;
 
 CREATE TABLE temperature_sensors (
     device_id varchar(20) PRIMARY KEY UNIQUE,
-    isAverage tinyint(1) DEFAULT 1,
+    isAverage tinyint(1) DEFAULT 1
 );
 CREATE TABLE devices (
     device_id varchar(20) PRIMARY KEY UNIQUE,
     slug varchar(100),
     name varchar(100),
-    type varchar(20) DEFAULT "dht11"
+    type varchar(20) DEFAULT "dht11",
     connection varchar(100) DEFAULT "mqtt",
     topic varchar(100),
     payload varchar(100),
@@ -35,13 +35,13 @@ CREATE TABLE rooms (
     devices varchar(255)
 );
 CREATE TABLE payload_types (
-    name varchar(10) PRIMARY KEY UNIQUE
+    name varchar(20) PRIMARY KEY UNIQUE
 );
 CREATE TABLE device_types (
-    name varchar(10) PRIMARY KEY UNIQUE
+    name varchar(20) PRIMARY KEY UNIQUE
 );
 CREATE TABLE connections (
-    name varchar(10) PRIMARY KEY UNIQUE
+    name varchar(20) PRIMARY KEY UNIQUE
 );
 
 INSERT INTO thermostat (name, value) VALUES ('temperature', 21.5);
