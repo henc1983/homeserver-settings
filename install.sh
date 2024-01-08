@@ -42,7 +42,7 @@ cd static
 npm init -y
 npm install bootstrap jquery
 cd /home/homeserver/.node-red
-npm install @node-red-contrib-themes/theme-collection node-red-contrib-stackhero-mysql node-red-contrib-homekit-bridged node-red-dashboard
+npm install @node-red-contrib-themes/theme-collection node-red-contrib-stackhero-mysql node-red-contrib-homekit-bridged node-red-dashboard node-red-contrib-ip node-red-contrib-cpu
 cd /home/homeserver/homeserver-settings
 cp settings.js /home/homeserver/.node-red
 cp -R assets/* /home/homeserver/static
